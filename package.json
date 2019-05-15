@@ -1,0 +1,21 @@
+{
+ "name": "arman-dashboard",
+ "version": "1.0.0",
+ "description": "",
+ "main": "index.js",
+ "dependencies": {
+   "@babel/core": "^7.4.4",
+   "@babel/preset-env": "^7.4.4",
+   "@babel/register": "^7.4.4",
+   "browser-sync": "^2.26.5",
+   "express": "^4.16.4",
+   "request": "^2.88.0"
+ },
+ "devDependencies": {},
+ "scripts": {
+   "start": "node --require @babel/register api",
+   "browser-sync": "browser-sync"
+ },
+ "author": "",
+ "license": "ISC"
+}
