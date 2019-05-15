@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+       integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+       crossorigin="">
+   <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+       integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+       crossorigin=""></script>
+</head>
+
+<body>
+   <style>
+       #mapid {
+           height: 280px;
+       }
+   </style>
+   <div id="mapid"></div><br>
+   <div id="weather"></div><br>
+   <div id="stations"></div><br>
+   <script>
+       var mymap = L.map('mapid').setView([59.32932349, 18.068580800000063], 14);
+       var layerGroup = L.layerGroup().addTo(mymap);
+       L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png').addTo(mymap);
+
+       mymap.on('click', function (e) {
+           var coord = e.latlng;
+           var lat = coord.lat;
+           var lng = coord.lng;
+           layerGroup.clearLayers();
+
+           fetch(new Request(`http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=415549ae7c06a193547768b6aeed4654`, { method: 'GET' }))
+               .then(function (response) {
+                   return response.json();
+               })
+               .then(data => {
+                   document.getElementById("weather").innerHTML = data.weather[0].description;
+               });
+
+           fetch(new Request(`http://localhost:3000/api/nearbystops`, {
+               method: 'POST', body: JSON.stringify({ lat: lat, lng: lng }), headers: {
+                   'Content-Type': 'application/json'
+               },
+           }))
+               .then(function (response) {
+                   return response.json();
+               })
+               .then(data => {                    
+                   document.getElementById("stations").innerHTML = JSON.stringify(data, null, 2);
+
+
+                   var blueIcon = new L.Icon({
+                       iconUrl: 'https://github.com/pointhi/leaflet-color-markers/raw/master/img/marker-icon-2x-red.png',
+                       iconSize: [25, 41],
+                       iconAnchor: [12, 41],
+                       popupAnchor: [1, -34],
+                       shadowSize: [41, 41]
+                   });
+
+                   L.marker([lat, lng], {icon: blueIcon}).addTo(layerGroup)
+                       .bindPopup('Your location');
+
+                   L.marker([data[0].lat, data[0].lon]).addTo(layerGroup)
+                       .bindPopup(data[0].name + ' ' + data[0].dist + 'm');
+                   L.marker([data[1].lat, data[1].lon]).addTo(layerGroup)
+                       .bindPopup(data[1].name + ' ' + data[1].dist + 'm');
+                   L.marker([data[2].lat, data[2].lon]).addTo(layerGroup)
+                       .bindPopup(data[2].name + ' ' + data[2].dist + 'm');
+               });
+       });
+   </script>
+</body>
+
+</html>
