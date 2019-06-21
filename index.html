@@ -20,6 +20,7 @@
    <div id="time"></div><br>
    <div id="weather"></div><br>
    <div id="stations"></div><br>
+   <pre id="tables"></pre><br>
    <script>
        setInterval(() => {
            document.getElementById("time").innerHTML = new Date();
@@ -51,8 +52,18 @@
                .then(function (response) {
                    return response.json();
                })
-               .then(data => {                    
+               .then(data => {
                    document.getElementById("stations").innerHTML = JSON.stringify(data, null, 2);
+
+                   const url = `https://cors-anywhere.herokuapp.com/http://api.sl.se/api2/realtimedeparturesV4.json?key=f1b7512b0672495d93ef0037f5f1b297&siteid=${data[0].id.substring(4)}&timewindow=5`;
+                   fetch(url)
+                       .then((resp) => resp.json())
+                       .then(function (data) {
+                           document.getElementById("tables").innerHTML = JSON.stringify(data.ResponseData, null, 2);
+                       })
+                       .catch(function (error) {
+                           console.log(error);
+                       });
 
 
                    var blueIcon = new L.Icon({
@@ -63,7 +74,7 @@
                        shadowSize: [41, 41]
                    });
 
-                   L.marker([lat, lng], {icon: blueIcon}).addTo(layerGroup)
+                   L.marker([lat, lng], { icon: blueIcon }).addTo(layerGroup)
                        .bindPopup('Your location');
 
                    L.marker([data[0].lat, data[0].lon]).addTo(layerGroup)
@@ -73,6 +84,18 @@
                    L.marker([data[2].lat, data[2].lon]).addTo(layerGroup)
                        .bindPopup(data[2].name + ' ' + data[2].dist + 'm');
                });
+
+
+
+
+
+
+
+
+
+
+
+
        });
    </script>
 </body>
